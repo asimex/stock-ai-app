@@ -19,6 +19,7 @@ const popularStocks = [
   { symbol: "INFY", name: "Infosys" },
   { symbol: "ICICIBANK", name: "ICICI Bank" },
     { symbol: "AXISBANK", name: "AXIS Bank" },
+     { symbol: "TATAPOWER", name: "TATAPOWER" },
 ];
 
 export default function HomeScreen() {
