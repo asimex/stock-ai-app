@@ -1,75 +1,147 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  FlatList,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const popularStocks = [
+  { symbol: "RELIANCE", name: "Reliance Industries" },
+  { symbol: "TCS", name: "Tata Consultancy" },
+  { symbol: "HDFCBANK", name: "HDFC Bank" },
+  { symbol: "INFY", name: "Infosys" },
+  { symbol: "ICICIBANK", name: "ICICI Bank" },
+    { symbol: "AXISBANK", name: "AXIS Bank" },
+];
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const [stock, setStock] = useState("");
+
+  const goToDetails = (symbol: string) => {
+    if (!symbol) return;
+    router.push(`/stock/${symbol.toUpperCase()}`);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>📊 Stock AI Analyst</Text>
+
+        <Text style={styles.subtitle}>Search Stock</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Stock Symbol (e.g., RELIANCE)"
+          value={stock}
+          onChangeText={setStock}
+          placeholderTextColor="#999"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <TouchableOpacity
+          style={[
+            styles.analyzeButton,
+            { opacity: stock ? 1 : 0.5 },
+          ]}
+          onPress={() => goToDetails(stock)}
+          disabled={!stock}
+        >
+          <Text style={styles.analyzeButtonText}>Analyze</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.subtitle}>🔥 Popular Stocks</Text>
+        <FlatList
+          data={popularStocks}
+          keyExtractor={(item) => item.symbol}
+          contentContainerStyle={styles.listContainer}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.stockCard}
+              onPress={() => goToDetails(item.symbol)}
+            >
+              <Text style={styles.stockSymbol}>{item.symbol}</Text>
+              <Text style={styles.stockName}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#f9f9f9",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#444",
+    marginVertical: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    fontSize: 16,
+    color: "#333",
+  },
+  analyzeButton: {
+    backgroundColor: "#007AFF",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  analyzeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  listContainer: {
+    paddingBottom: 20,
+  },
+  stockCard: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 6,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  stockSymbol: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#007AFF",
+  },
+  stockName: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
   },
 });
